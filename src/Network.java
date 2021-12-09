@@ -57,14 +57,15 @@ class Semaphore {
 
     public synchronized void waitf(Device device) {
         value--;
-        if (value < 0){
+        if (value < 0) {
             System.out.println("(" + device.name + ") (" + device.type + ") arrived and waiting");
             try {
                 wait();
 
             } catch (InterruptedException e) {
 
-            }}else {
+            }
+        } else {
             System.out.println("(" + device.name + ") (" + device.type + ") arrived");
         }
 
@@ -111,7 +112,7 @@ class Router {
     }
 
     public void releaseConnection(Device device) {
-        int id=connectedDevices.indexOf(device);
+        int id = connectedDevices.indexOf(device);
         String r = device.logout();
         connectedDevices.remove(device);
         System.out.println("Connection " + (id + 1) + ": " + r);
@@ -148,13 +149,13 @@ class Device extends Thread {
     }*/
 
     public void login(Router router) {
-        System.out.println("Connection " + (router.getConnectedDevices().indexOf(this)+1) + ": " + name + " login");
+        System.out.println("Connection " + (router.getConnectedDevices().indexOf(this) + 1) + ": " + name + " login");
 
 
     }
 
     public void perform_online_activity() {
-        System.out.println("Connection " + (router.getConnectedDevices().indexOf(this)+1) + ": " + name + " performs online activity ");
+        System.out.println("Connection " + (router.getConnectedDevices().indexOf(this) + 1) + ": " + name + " performs online activity ");
     }
 
     public String logout() {
