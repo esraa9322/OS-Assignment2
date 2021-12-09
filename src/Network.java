@@ -1,3 +1,6 @@
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -16,7 +19,7 @@ public class Network {
         return d;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         //N max number of connections a router can hold
         int N, TC;
         System.out.println("What is the number of WI-FI connections ?");
@@ -31,11 +34,14 @@ public class Network {
 
         for (int i = 0; i < TC; i++)
             TC_lines.add(createDevice());
+        PrintStream out = new PrintStream(new FileOutputStream("output.txt"));
+        System.setOut(out);
 
         for (int i = 0; i < TC; i++)
             TC_lines.get(i).start();
 
     }
+
 }
 
 class Semaphore {
@@ -49,14 +55,19 @@ class Semaphore {
         value = initial;
     }
 
-    public synchronized void waitf() {
+    public synchronized void waitf(Device device) {
         value--;
-        if (value < 0)
+        if (value < 0){
+            System.out.println("(" + device.name + ") (" + device.type + ") arrived and waiting");
             try {
                 wait();
+
             } catch (InterruptedException e) {
 
-            }
+            }}else {
+            System.out.println("(" + device.name + ") (" + device.type + ") arrived");
+        }
+
     }
 
     public synchronized void signal() {
@@ -94,15 +105,16 @@ class Router {
     }
 
     public void occupyConnection(Device device) {
-        deviecsSemaphore.waitf();
+        deviecsSemaphore.waitf(device);
         connectedDevices.add(device);
         System.out.println("Connection " + connectedDevices.size() + ": " + device.name + " Occupied");
     }
 
     public void releaseConnection(Device device) {
+        int id=connectedDevices.indexOf(device);
         String r = device.logout();
         connectedDevices.remove(device);
-        System.out.println("Connection " + (connectedDevices.size() + 1) + ": " + r);
+        System.out.println("Connection " + (id + 1) + ": " + r);
         deviecsSemaphore.signal();
     }
 
@@ -115,7 +127,7 @@ class Device extends Thread {
     @Override
     public void run() {
         super.run();
-        connect();
+        //connect();
         router.occupyConnection(this);
         login(router);
         perform_online_activity();
@@ -131,18 +143,18 @@ class Device extends Thread {
         this.router = router;
     }
 
-    public void connect() {
+    /*public void connect() {
         System.out.println("(" + name + ") (" + type + ") arrived");
-    }
+    }*/
 
     public void login(Router router) {
-        System.out.println("Connection " + router.getConnectedDevices().size() + ": " + name + " login");
+        System.out.println("Connection " + (router.getConnectedDevices().indexOf(this)+1) + ": " + name + " login");
 
 
     }
 
     public void perform_online_activity() {
-        System.out.println("Connection " + router.getConnectedDevices().size() + ": " + name + " performs online activity ");
+        System.out.println("Connection " + (router.getConnectedDevices().indexOf(this)+1) + ": " + name + " performs online activity ");
     }
 
     public String logout() {
